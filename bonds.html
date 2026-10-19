@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bonds — Stillwater</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="logo">Still<span>water</span></div>
+      <div>
+        <button onclick="setLang('en')" style="background:none;border:none;cursor:pointer;font-weight:600;color:var(--green);">EN</button>
+        <span style="color:var(--text-muted);">|</span>
+        <button onclick="setLang('th')" style="background:none;border:none;cursor:pointer;color:var(--text-muted);">TH</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="card" style="margin-top: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2 id="bonds-title"></h2>
+        <button class="btn" style="width: auto; padding: 10px 16px; font-size: 14px;" onclick="showAddForm()" id="add-btn"></button>
+      </div>
+      <div id="bonds-list"></div>
+    </div>
+
+    <div class="card" id="add-form" style="display: none;">
+      <h3 id="add-new-title"></h3>
+      <form id="bond-form">
+        <div class="form-group">
+          <label id="name-label"></label>
+          <input type="text" id="bond-name" required>
+        </div>
+        <div class="form-group">
+          <label id="date-label"></label>
+          <input type="date" id="bond-date" required>
+        </div>
+        <div class="form-group">
+          <label id="time-label"></label>
+          <input type="time" id="bond-time">
+        </div>
+        <div class="form-group">
+          <label id="type-label"></label>
+          <select id="bond-type" required>
+            <option value="romantic" id="type-romantic"></option>
+            <option value="ex" id="type-ex"></option>
+            <option value="family" id="type-family"></option>
+            <option value="other" id="type-other"></option>
+          </select>
+        </div>
+        <button type="submit" class="btn" id="analyze-btn"></button>
+      </form>
+    </div>
+
+    <div class="card" id="report" style="display: none;">
+      <div class="section-title" id="report-type"></div>
+      <h2 id="report-name"></h2>
+      <div class="pattern-summary" id="report-summary"></div>
+      
+      <div style="margin-top: 20px;">
+        <h3 id="attraction-title"></h3>
+        <p id="report-attraction"></p>
+      </div>
+
+      <div class="card" style="position: relative; margin-top: 16px; padding: 0;">
+        <div class="lock-overlay" id="bond-lock">
+          <div style="text-align: center; padding: 20px;">
+            <div class="price-tag" id="full-report-tag"></div>
+            <p style="font-size: 14px; margin: 12px 0; color: var(--text-muted);" id="full-report-desc"></p>
+            <button class="btn btn-gold" onclick="unlockBond()" id="unlock-bond-btn"></button>
+          </div>
+        </div>
+        <div class="locked" id="bond-locked" style="padding: 20px;">
+          <h3 id="friction-title"></h3>
+          <p id="report-friction"></p>
+          <h3 style="margin-top: 16px;" id="comm-advice-title"></h3>
+          <p id="report-comm"></p>
+          <h3 style="margin-top: 16px;" id="outlook-title"></h3>
+          <p id="report-outlook"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="pattern.html"><span>◎</span>Pattern</a>
+    <a href="bonds.html" class="active"><span>⚭</span>Bonds</a>
+    <a href="timing.html"><span>◷</span>Timing</a>
+    <a href="guidance.html"><span>💬</span>Guidance</a>
+  </nav>
+
+  <script src="js/app.js"></script>
+  <script>
+    document.getElementById('bonds-title').textContent = t('bondsTitle');
+    document.getElementById('add-btn').textContent = t('addPerson');
+    document.getElementById('add-new-title').textContent = t('addNew');
+    document.getElementById('name-label').textContent = t('nameLabel');
+    document.getElementById('date-label').textContent = t('birthDate');
+    document.getElementById('time-label').textContent = t('birthTime');
+    document.getElementById('type-label').textContent = t('typeLabel');
+    document.getElementById('type-romantic').textContent = t('typeRomantic');
+    document.getElementById('type-ex').textContent = t('typeEx');
+    document.getElementById('type-family').textContent = t('typeFamily');
+    document.getElementById('type-other').textContent = t('typeOther');
+    document.getElementById('analyze-btn').textContent = t('analyze');
+    document.getElementById('attraction-title').textContent = t('attraction');
+    document.getElementById('full-report-tag').textContent = t('fullReport');
+    document.getElementById('full-report-desc').textContent = t('fullReportDesc');
+    document.getElementById('unlock-bond-btn').textContent = t('unlockBond');
+    document.getElementById('friction-title').textContent = t('friction');
+    document.getElementById('comm-advice-title').textContent = t('commAdvice');
+    document.getElementById('outlook-title').textContent = t('outlook');
+
+    let bonds = JSON.parse(localStorage.getItem('stillwater_bonds') || '[]');
+
+    function renderList() {
+      const list = document.getElementById('bonds-list');
+      if (bonds.length === 0) {
+        list.innerHTML = `<p style="color: var(--text-muted); padding: 20px 0;">${t('noBonds')}</p>`;
+        return;
+      }
+      list.innerHTML = bonds.map((b, i) => `
+        <div class="bond-item" onclick="viewBond(${i})">
+          <div>
+            <div class="bond-name">${b.name}</div>
+            <div class="bond-type">${typeLabel(b.type)}</div>
+          </div>
+          <span style="color: var(--green);">${t('view')}</span>
+        </div>
+      `).join('');
+    }
+
+    function typeLabel(type) {
+      const map = {
+        romantic: t('typeRomantic'),
+        ex: t('typeEx'),
+        family: t('typeFamily'),
+        other: t('typeOther')
+      };
+      return map[type] || type;
+    }
+
+    function showAddForm() {
+      document.getElementById('add-form').style.display = 'block';
+      document.getElementById('report').style.display = 'none';
+    }
+
+    document.getElementById('bond-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const bond = {
+        name: document.getElementById('bond-name').value,
+        date: document.getElementById('bond-date').value,
+        time: document.getElementById('bond-time').value,
+        type: document.getElementById('bond-type').value
+      };
+      bonds.push(bond);
+      localStorage.setItem('stillwater_bonds', JSON.stringify(bonds));
+      document.getElementById('add-form').style.display = 'none';
+      document.getElementById('bond-form').reset();
+      viewBond(bonds.length - 1);
+      renderList();
+    });
+
+    function viewBond(index) {
+      const bond = bonds[index];
+      const user = JSON.parse(localStorage.getItem('stillwater_user') || '{}');
+      const report = generateBondReport(user, bond);
+
+      document.getElementById('report-type').textContent = typeLabel(bond.type);
+      document.getElementById('report-name').textContent = bond.name;
+      document.getElementById('report-summary').textContent = report.summary;
+      document.getElementById('report-attraction').textContent = report.attraction;
+      document.getElementById('report-friction').textContent = report.friction;
+      document.getElementById('report-comm').textContent = report.communication;
+      document.getElementById('report-outlook').textContent = report.outlook;
+
+      document.getElementById('report').style.display = 'block';
+      document.getElementById('add-form').style.display = 'none';
+      document.getElementById('bond-lock').style.display = 'flex';
+      document.getElementById('bond-locked').classList.add('locked');
+    }
+
+    function unlockBond() {
+      const item = encodeURIComponent(t('fullReport') + ' - Bonds');
+      location.href = `payment.html?item=${item}&amount=249&return=bonds.html`;
+    }
+
+    renderList();
+  </script>
+</body>
+</html>

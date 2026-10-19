@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guidance — Stillwater</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="logo">Still<span>water</span></div>
+      <div>
+        <button onclick="setLang('en')" style="background:none;border:none;cursor:pointer;font-weight:600;color:var(--green);">EN</button>
+        <span style="color:var(--text-muted);">|</span>
+        <button onclick="setLang('th')" style="background:none;border:none;cursor:pointer;color:var(--text-muted);">TH</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="card" style="margin-top: 20px;">
+      <div class="section-title">Guidance</div>
+      <h2 id="guidance-title"></h2>
+      <p style="color: var(--text-muted); margin-bottom: 16px;" id="guidance-sub"></p>
+
+      <form id="guidance-form">
+        <div class="form-group">
+          <label id="question-label"></label>
+          <textarea id="question" rows="4" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;font-size:16px;font-family:inherit;" required></textarea>
+        </div>
+        <button type="submit" class="btn" id="ask-btn"></button>
+      </form>
+    </div>
+
+    <div class="card" id="answer-card" style="display: none;">
+      <h3 id="answer-title"></h3>
+      <div class="pattern-summary" id="answer-text"></div>
+
+      <div class="card" style="position: relative; margin-top: 16px; padding: 0;">
+        <div class="lock-overlay" id="guidance-lock">
+          <div style="text-align: center; padding: 20px;">
+            <div class="price-tag" id="deeper-tag"></div>
+            <p style="font-size: 14px; margin: 12px 0; color: var(--text-muted);" id="deeper-desc"></p>
+            <button class="btn btn-gold" onclick="unlockGuidance()" id="unlock-guidance-btn"></button>
+          </div>
+        </div>
+        <div class="locked" id="guidance-locked" style="padding: 20px;">
+          <h3 id="deeper-title"></h3>
+          <p id="deeper-text"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="pattern.html"><span>◎</span>Pattern</a>
+    <a href="bonds.html"><span>⚭</span>Bonds</a>
+    <a href="timing.html"><span>◷</span>Timing</a>
+    <a href="guidance.html" class="active"><span>💬</span>Guidance</a>
+  </nav>
+
+  <script src="js/app.js"></script>
+  <script>
+    const guidanceExtra = {
+      en: {
+        guidanceTitle: "Ask About a Relationship",
+        guidanceSub: "Your question will be answered using your pattern and any bonds you have created.",
+        questionLabel: "Your question",
+        askBtn: "Get Guidance",
+        answerTitle: "Guidance",
+        deeperTag: "Go Deeper",
+        deeperDesc: "More specific advice based on your patterns",
+        unlockGuidanceBtn: "Unlock for 99 THB",
+        deeperTitle: "What This Points To",
+        sampleAnswer: "Based on your pattern, this situation is highlighting your tendency to wait for clear signals before speaking. The other person may be reading your quietness differently than you intend.",
+        sampleDeeper: "A useful next step is to name one specific need out loud instead of waiting to see if they notice. This breaks the cycle of guessing that has shown up in your previous connections."
+      },
+      th: {
+        guidanceTitle: "ถามเรื่องความสัมพันธ์",
+        guidanceSub: "คำตอบจะอ้างอิงจากรูปแบบของคุณและ Bonds ที่คุณสร้างไว้",
+        questionLabel: "คำถามของคุณ",
+        askBtn: "รับคำแนะนำ",
+        answerTitle: "คำแนะนำ",
+        deeperTag: "ดูลึกขึ้น",
+        deeperDesc: "คำแนะนำที่เฉพาะเจาะจงตามรูปแบบของคุณ",
+        unlockGuidanceBtn: "ปลดล็อก 99 บาท",
+        deeperTitle: "สิ่งที่สิ่งนี้ชี้ให้เห็น",
+        sampleAnswer: "จากรูปแบบของคุณ สถานการณ์นี้กำลังเน้นแนวโน้มที่คุณรอสัญญาณชัดเจนก่อนจะพูด อีกฝ่ายอาจตีความความเงียบของคุณต่างจากที่คุณตั้งใจ",
+        sampleDeeper: "ขั้นตอนถัดไปที่มีประโยชน์คือพูดความต้องการหนึ่งอย่างออกมาตรง ๆ แทนการรอให้อีกฝ่ายสังเกตเอง สิ่งนี้ช่วยตัดวงจรการเดาที่เคยเกิดขึ้นในความสัมพันธ์ก่อนหน้า"
+      }
+    };
+
+    Object.assign(translations.en, guidanceExtra.en);
+    Object.assign(translations.th, guidanceExtra.th);
+
+    document.getElementById('guidance-title').textContent = t('guidanceTitle');
+    document.getElementById('guidance-sub').textContent = t('guidanceSub');
+    document.getElementById('question-label').textContent = t('questionLabel');
+    document.getElementById('ask-btn').textContent = t('askBtn');
+    document.getElementById('answer-title').textContent = t('answerTitle');
+    document.getElementById('deeper-tag').textContent = t('deeperTag');
+    document.getElementById('deeper-desc').textContent = t('deeperDesc');
+    document.getElementById('unlock-guidance-btn').textContent = t('unlockGuidanceBtn');
+    document.getElementById('deeper-title').textContent = t('deeperTitle');
+
+    document.getElementById('guidance-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      document.getElementById('answer-text').textContent = t('sampleAnswer');
+      document.getElementById('deeper-text').textContent = t('sampleDeeper');
+      document.getElementById('answer-card').style.display = 'block';
+      document.getElementById('guidance-lock').style.display = 'flex';
+      document.getElementById('guidance-locked').classList.add('locked');
+    });
+
+    function unlockGuidance() {
+      const item = encodeURIComponent(t('deeperTag'));
+      location.href = `payment.html?item=${item}&amount=99&return=guidance.html`;
+    }
+  </script>
+</body>
+</html>

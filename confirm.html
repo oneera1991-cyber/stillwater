@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirm — Stillwater</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="logo">Still<span>water</span></div>
+      <div>
+        <button onclick="setLang('en')" style="background:none;border:none;cursor:pointer;font-weight:600;color:var(--green);">EN</button>
+        <span style="color:var(--text-muted);">|</span>
+        <button onclick="setLang('th')" style="background:none;border:none;cursor:pointer;color:var(--text-muted);">TH</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="card" style="margin-top: 24px;">
+      <h2 id="confirm-title"></h2>
+      <p style="color: var(--text-muted); margin-bottom: 20px;" id="confirm-sub"></p>
+
+      <div id="summary" style="background: var(--bg); padding: 16px; border-radius: 12px; margin-bottom: 20px; font-size: 15px; line-height: 1.8;"></div>
+
+      <button class="btn" id="confirm-btn" onclick="confirmProfile()"></button>
+      <p style="text-align: center; margin-top: 12px;">
+        <a href="profile.html" id="edit-link"></a>
+      </p>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    const extra = {
+      en: {
+        confirmTitle: "Confirm your details",
+        confirmSub: "Please check everything is correct",
+        confirmBtn: "Confirm & Continue",
+        edit: "Edit"
+      },
+      th: {
+        confirmTitle: "ยืนยันข้อมูลของคุณ",
+        confirmSub: "ตรวจสอบว่าถูกต้องหรือไม่",
+        confirmBtn: "ยืนยันและดำเนินการต่อ",
+        edit: "แก้ไข"
+      }
+    };
+    Object.assign(translations.en, extra.en);
+    Object.assign(translations.th, extra.th);
+
+    document.getElementById('confirm-title').textContent = t('confirmTitle');
+    document.getElementById('confirm-sub').textContent = t('confirmSub');
+    document.getElementById('confirm-btn').textContent = t('confirmBtn');
+    document.getElementById('edit-link').textContent = t('edit');
+
+    const profile = JSON.parse(localStorage.getItem('stillwater_profile') || '{}');
+    const account = JSON.parse(localStorage.getItem('stillwater_account') || '{}');
+
+    const lines = [
+      `<strong>${t('email')}:</strong> ${account.email || '-'}`,
+      `<strong>${t('first')}:</strong> ${profile.firstName || '-'}`,
+      `<strong>${t('last')}:</strong> ${profile.lastName || '-'}`,
+      `<strong>${t('username')}:</strong> ${profile.username || '-'}`,
+      `<strong>${t('birthdate')}:</strong> ${profile.birthdate || '-'}`,
+      `<strong>${t('birthtime')}:</strong> ${profile.birthtime || '-'}`,
+      `<strong>${t('gender')}:</strong> ${profile.gender || '-'}`,
+      `<strong>${t('city')}:</strong> ${profile.city || '-'}`,
+      `<strong>${t('country')}:</strong> ${profile.country || '-'}`
+    ];
+    document.getElementById('summary').innerHTML = lines.join('<br>');
+
+    async function confirmProfile() {
+      const user = {
+        birthdate: profile.birthdate,
+        birthtime: profile.birthtime,
+        birthplace: (profile.city || '') + ', ' + (profile.country || ''),
+        status: 'pattern',
+        ...profile,
+        email: account.email
+      };
+      localStorage.setItem('stillwater_user', JSON.stringify(user));
+
+      // Try to save to backend
+      try {
+        await fetch('http://localhost:5001/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...account, ...profile })
+        });
+      } catch (e) {}
+
+      location.href = 'pattern.html';
+    }
+  </script>
+</body>
+</html>

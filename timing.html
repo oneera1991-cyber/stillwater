@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timing — Stillwater</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="logo">Still<span>water</span></div>
+      <div>
+        <button onclick="setLang('en')" style="background:none;border:none;cursor:pointer;font-weight:600;color:var(--green);">EN</button>
+        <span style="color:var(--text-muted);">|</span>
+        <button onclick="setLang('th')" style="background:none;border:none;cursor:pointer;color:var(--text-muted);">TH</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="card" style="margin-top: 20px;">
+      <div class="section-title" id="timing-label">Timing</div>
+      <h2 id="timing-title"></h2>
+      <div class="pattern-summary" id="current-theme"></div>
+    </div>
+
+    <div class="card">
+      <h3 id="now-title"></h3>
+      <p id="now-text"></p>
+    </div>
+
+    <div class="card" style="position: relative;">
+      <div class="lock-overlay" id="timing-lock">
+        <div style="text-align: center;">
+          <div class="price-tag" style="margin-bottom: 12px;" id="unlock-timing-tag"></div>
+          <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 12px;" id="unlock-timing-desc"></p>
+          <button class="btn btn-gold" onclick="unlockTiming()" id="unlock-timing-btn"></button>
+        </div>
+      </div>
+      <div class="locked" id="timing-locked">
+        <h3 id="ahead-title"></h3>
+        <p id="ahead-text"></p>
+        <h3 style="margin-top: 20px;" id="caution-title"></h3>
+        <p id="caution-text"></p>
+      </div>
+    </div>
+
+    <div class="card" style="text-align: center; background: linear-gradient(135deg, #f0ebe3, var(--pink-soft));">
+      <p style="font-weight: 500; margin-bottom: 12px;" id="timing-cta-text"></p>
+      <a href="guidance.html" class="btn" id="timing-cta-btn"></a>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="pattern.html"><span>◎</span>Pattern</a>
+    <a href="bonds.html"><span>⚭</span>Bonds</a>
+    <a href="timing.html" class="active"><span>◷</span>Timing</a>
+    <a href="guidance.html"><span>💬</span>Guidance</a>
+  </nav>
+
+  <script src="js/app.js"></script>
+  <script>
+    // Extend translations for Timing
+    const timingExtra = {
+      en: {
+        timingTitle: "Your Relationship Timing",
+        currentTheme: "Right now the theme around connection is about clarity and pace. You are being asked to notice whether you are moving toward someone or protecting yourself.",
+        nowTitle: "Right Now",
+        nowText: "This period highlights how you handle uncertainty in early attraction. You may feel the pull to know where things stand quickly.",
+        unlockTimingTag: "See Ahead",
+        unlockTimingDesc: "Upcoming themes and what to watch for in the next phase",
+        unlockTimingBtn: "Unlock for 149 THB",
+        aheadTitle: "Looking Ahead",
+        aheadText: "The next stretch favors slower, more intentional connection. Rushing decisions may create the same distance you have felt before.",
+        cautionTitle: "What to Watch",
+        cautionText: "Notice when you start interpreting silence as rejection. That pattern tends to appear when the pace feels unclear.",
+        timingCta: "Have a specific question about someone?",
+        timingCtaBtn: "Ask Guidance"
+      },
+      th: {
+        timingTitle: "จังหวะเวลาด้านความสัมพันธ์ของคุณ",
+        currentTheme: "ช่วงนี้ธีมเรื่องความสัมพันธ์คือความชัดเจนและจังหวะ คุณกำลังถูกชวนให้สังเกตว่ากำลังเข้าใกล้ใครหรือกำลังปกป้องตัวเอง",
+        nowTitle: "ตอนนี้",
+        nowText: "ช่วงนี้เน้นวิธีที่คุณรับมือกับความไม่แน่นอนในช่วงเริ่มต้นของความสนใจ คุณอาจอยากรู้สถานะเร็ว",
+        unlockTimingTag: "ดูช่วงถัดไป",
+        unlockTimingDesc: "ธีมที่กำลังจะมาและสิ่งที่ควรสังเกตในระยะต่อไป",
+        unlockTimingBtn: "ปลดล็อก 149 บาท",
+        aheadTitle: "มองไปข้างหน้า",
+        aheadText: "ช่วงถัดไปเหมาะกับการเชื่อมต่อที่ช้าและตั้งใจมากกว่า การเร่งตัดสินใจอาจสร้างระยะห่างแบบเดิม",
+        cautionTitle: "สิ่งที่ควรระวัง",
+        cautionText: "สังเกตเมื่อคุณเริ่มตีความความเงียบว่าเป็นการปฏิเสธ รูปแบบนี้มักโผล่เมื่อจังหวะยังไม่ชัด",
+        timingCta: "มีคำถามเฉพาะเกี่ยวกับใครบางคน?",
+        timingCtaBtn: "ถาม Guidance"
+      }
+    };
+
+    Object.assign(translations.en, timingExtra.en);
+    Object.assign(translations.th, timingExtra.th);
+
+    document.getElementById('timing-title').textContent = t('timingTitle');
+    document.getElementById('current-theme').textContent = t('currentTheme');
+    document.getElementById('now-title').textContent = t('nowTitle');
+    document.getElementById('now-text').textContent = t('nowText');
+    document.getElementById('unlock-timing-tag').textContent = t('unlockTimingTag');
+    document.getElementById('unlock-timing-desc').textContent = t('unlockTimingDesc');
+    document.getElementById('unlock-timing-btn').textContent = t('unlockTimingBtn');
+    document.getElementById('ahead-title').textContent = t('aheadTitle');
+    document.getElementById('ahead-text').textContent = t('aheadText');
+    document.getElementById('caution-title').textContent = t('cautionTitle');
+    document.getElementById('caution-text').textContent = t('cautionText');
+    document.getElementById('timing-cta-text').textContent = t('timingCta');
+    document.getElementById('timing-cta-btn').textContent = t('timingCtaBtn');
+
+    function unlockTiming() {
+      const item = encodeURIComponent(t('unlockTimingTag'));
+      location.href = `payment.html?item=${item}&amount=149&return=timing.html`;
+    }
+  </script>
+</body>
+</html>

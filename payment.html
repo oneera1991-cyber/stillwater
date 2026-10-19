@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment — Stillwater</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="logo">Still<span>water</span></div>
+      <div>
+        <button onclick="setLang('en')" style="background:none;border:none;cursor:pointer;font-weight:600;color:var(--green);">EN</button>
+        <span style="color:var(--text-muted);">|</span>
+        <button onclick="setLang('th')" style="background:none;border:none;cursor:pointer;color:var(--text-muted);">TH</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="card" style="margin-top: 24px; text-align: center;">
+      <div class="section-title" id="pay-label">Payment</div>
+      <h2 id="pay-title"></h2>
+      <p id="pay-item" style="font-size: 18px; margin: 12px 0; color: var(--green);"></p>
+      <p id="pay-amount" style="font-size: 32px; font-weight: 600; color: var(--gold); margin: 8px 0;"></p>
+
+      <div style="background: var(--bg); border-radius: 12px; padding: 20px; margin: 20px 0;">
+        <p style="font-size: 14px; color: var(--text-muted);" id="pay-method"></p>
+        <div style="margin: 16px auto; width: 180px; height: 180px; background: #fff; border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+          <span style="color: var(--text-muted); font-size: 13px;">PromptPay QR<br>(placeholder)</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-muted);" id="pay-note"></p>
+      </div>
+
+      <button class="btn btn-gold" onclick="startStripe()" id="confirm-btn"></button>
+      <p style="margin-top: 8px; font-size: 12px; color: var(--text-muted);" id="stripe-note"></p>
+      <p style="margin-top: 12px; font-size: 13px;"><a href="javascript:history.back()" id="cancel-link"></a></p>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    const payExtra = {
+      en: {
+        payTitle: "Complete Payment",
+        payMethod: "Scan with any Thai banking app",
+        payNote: "After payment, content unlocks immediately on this device.",
+        confirmBtn: "I've Paid — Unlock Now",
+        cancel: "Cancel"
+      },
+      th: {
+        payTitle: "ชำระเงิน",
+        payMethod: "สแกนด้วยแอปธนาคารไทย",
+        payNote: "หลังชำระเงิน เนื้อหาจะปลดล็อกทันทีบนอุปกรณ์นี้",
+        confirmBtn: "ชำระแล้ว — ปลดล็อกเลย",
+        cancel: "ยกเลิก"
+      }
+    };
+    Object.assign(translations.en, payExtra.en);
+    Object.assign(translations.th, payExtra.th);
+
+    const params = new URLSearchParams(location.search);
+    const item = params.get('item') || 'Full Report';
+    const amount = params.get('amount') || '199';
+    const returnUrl = params.get('return') || 'pattern.html';
+
+    document.getElementById('pay-title').textContent = t('payTitle');
+    document.getElementById('pay-item').textContent = decodeURIComponent(item);
+    document.getElementById('pay-amount').textContent = amount + ' THB';
+    document.getElementById('pay-method').textContent = t('payMethod');
+    document.getElementById('pay-note').textContent = t('payNote');
+    document.getElementById('confirm-btn').textContent = t('confirmBtn');
+    document.getElementById('cancel-link').textContent = t('cancel');
+
+    document.getElementById('confirm-btn').textContent = currentLang === 'th' ? 'จ่ายด้วย Stripe' : 'Pay with Stripe';
+    document.getElementById('stripe-note').textContent = currentLang === 'th' 
+      ? 'ต้องมี backend + Stripe Secret Key จึงจะทำงานจริง' 
+      : 'Requires backend + Stripe Secret Key to work live';
+
+    async function startStripe() {
+      const payload = {
+        item: decodeURIComponent(item),
+        amount: parseInt(amount),
+        return_url: 'https://example.com/' + returnUrl   // ใช้ URL ชั่วคราวสำหรับทดสอบ local
+      };
+      try {
+        const res = await fetch('http://localhost:5000/create-checkout-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.url) {
+          location.href = data.url;
+        } else {
+          alert(data.error || 'Stripe error');
+        }
+      } catch (e) {
+        alert(currentLang === 'th' 
+          ? 'Backend ยังไม่ทำงาน — ใช้โหมดจำลองแทน' 
+          : 'Backend not running — using simulation mode');
+        confirmPayment();
+      }
+    }
+
+    function confirmPayment() {
+      const key = 'unlocked_' + item.replace(/\s+/g, '_').toLowerCase();
+      localStorage.setItem(key, 'true');
+      localStorage.setItem('last_payment', JSON.stringify({ item, amount, time: Date.now() }));
+      alert(currentLang === 'th' ? 'ปลดล็อกสำเร็จ' : 'Unlocked successfully');
+      location.href = returnUrl;
+    }
+  </script>
+</body>
+</html>

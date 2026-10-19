@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Pattern — Stillwater</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="logo">Still<span>water</span></div>
+      <div>
+        <button onclick="setLang('en')" style="background:none;border:none;cursor:pointer;font-weight:600;color:var(--green);">EN</button>
+        <span style="color:var(--text-muted);">|</span>
+        <button onclick="setLang('th')" style="background:none;border:none;cursor:pointer;color:var(--text-muted);">TH</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="card" style="margin-top: 20px;">
+      <div class="section-title" id="pattern-label"></div>
+      <h2 id="love-map"></h2>
+      <div class="pattern-summary" id="summary"></div>
+    </div>
+
+    <div class="card">
+      <h3 id="attachment-title"></h3>
+      <p id="attachment"></p>
+    </div>
+
+    <div class="card" style="position: relative;">
+      <div class="lock-overlay" id="lock">
+        <div style="text-align: center;">
+          <div class="price-tag" style="margin-bottom: 12px;" id="unlock-full"></div>
+          <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 12px;" id="unlock-desc"></p>
+          <button class="btn btn-gold" onclick="unlock()" id="unlock-btn"></button>
+        </div>
+      </div>
+      <div class="locked" id="locked-content">
+        <h3 id="comm-title"></h3>
+        <p id="communication"></p>
+        <h3 style="margin-top: 20px;" id="patterns-title"></h3>
+        <p id="patterns"></p>
+        <h3 style="margin-top: 20px;" id="strengths-title"></h3>
+        <p id="strengths"></p>
+      </div>
+    </div>
+
+    <div class="card" style="text-align: center; background: linear-gradient(135deg, #f0ebe3, var(--pink-soft));">
+      <p style="font-weight: 500; margin-bottom: 12px;" id="want-bonds"></p>
+      <a href="bonds.html" class="btn" id="analyze-bonds"></a>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="pattern.html" class="active"><span>◎</span>Pattern</a>
+    <a href="bonds.html"><span>⚭</span>Bonds</a>
+    <a href="timing.html"><span>◷</span>Timing</a>
+    <a href="guidance.html"><span>💬</span>Guidance</a>
+  </nav>
+
+  <script src="js/app.js"></script>
+  <script>
+    document.getElementById('pattern-label').textContent = t('myPattern');
+    document.getElementById('love-map').textContent = t('loveMap');
+    document.getElementById('attachment-title').textContent = t('attachmentStyle');
+    document.getElementById('unlock-full').textContent = t('unlockFull');
+    document.getElementById('unlock-desc').textContent = t('unlockDesc');
+    document.getElementById('unlock-btn').textContent = t('unlockBtn');
+    document.getElementById('comm-title').textContent = t('communicationStyle');
+    document.getElementById('patterns-title').textContent = t('repeatingPatterns');
+    document.getElementById('strengths-title').textContent = t('strengthsCautions');
+    document.getElementById('want-bonds').textContent = t('wantBonds');
+    document.getElementById('analyze-bonds').textContent = t('analyzeBonds');
+
+    const user = JSON.parse(localStorage.getItem('stillwater_user') || '{}');
+    if (!user.birthdate && !user.email) window.location.href = 'signup.html';
+
+    async function loadPattern() {
+      if (user.email) {
+        try {
+          const res = await fetch('http://localhost:5001/api/pattern', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: user.email })
+          });
+          if (res.ok) {
+            const insights = await res.json();
+            document.getElementById('summary').textContent = insights.summary;
+            document.getElementById('attachment').textContent = insights.attachment;
+            document.getElementById('communication').textContent = insights.communication;
+            document.getElementById('patterns').textContent = insights.patterns;
+            document.getElementById('strengths').textContent = insights.strengths;
+            return;
+          }
+        } catch (e) {}
+      }
+      // Fallback to local generation
+      const insights = generatePatternInsights(user);
+      document.getElementById('summary').textContent = insights.summary;
+      document.getElementById('attachment').textContent = insights.attachment;
+      document.getElementById('communication').textContent = insights.communication;
+      document.getElementById('patterns').textContent = insights.patterns;
+      document.getElementById('strengths').textContent = insights.strengths;
+    }
+    loadPattern();
+
+    // Check if already unlocked
+    if (localStorage.getItem('unlocked_unlock_full_pattern') === 'true' || localStorage.getItem('unlocked_' + t('unlockFull').replace(/\s+/g, '_').toLowerCase()) === 'true') {
+      document.getElementById('lock').style.display = 'none';
+      document.getElementById('locked-content').classList.remove('locked');
+    }
+
+    function unlock() {
+      const item = encodeURIComponent(t('unlockFull'));
+      location.href = `payment.html?item=${item}&amount=199&return=pattern.html`;
+    }
+  </script>
+</body>
+</html>

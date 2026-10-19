@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Profile — Stillwater</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="logo">Still<span>water</span></div>
+      <div>
+        <button onclick="setLang('en')" style="background:none;border:none;cursor:pointer;font-weight:600;color:var(--green);">EN</button>
+        <span style="color:var(--text-muted);">|</span>
+        <button onclick="setLang('th')" style="background:none;border:none;cursor:pointer;color:var(--text-muted);">TH</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="card" style="margin-top: 24px;">
+      <h2 id="greet"></h2>
+      <p style="color: var(--text-muted); margin-bottom: 20px;" id="greet-sub"></p>
+
+      <form id="profile-form">
+        <div class="form-group">
+          <label id="first-label"></label>
+          <input type="text" id="firstName" required>
+        </div>
+        <div class="form-group">
+          <label id="last-label"></label>
+          <input type="text" id="lastName" required>
+        </div>
+        <div class="form-group">
+          <label id="username-label"></label>
+          <input type="text" id="username" required>
+        </div>
+        <div class="form-group">
+          <label id="birthdate-label"></label>
+          <input type="date" id="birthdate" required>
+        </div>
+        <div class="form-group">
+          <label id="birthtime-label"></label>
+          <input type="time" id="birthtime">
+        </div>
+        <div class="form-group">
+          <label id="gender-label"></label>
+          <select id="gender" required>
+            <option value="">—</option>
+            <option value="he/him">he/him</option>
+            <option value="she/her">she/her</option>
+            <option value="they/them">they/them</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label id="city-label"></label>
+          <input type="text" id="city" required>
+        </div>
+        <div class="form-group">
+          <label id="country-label"></label>
+          <input type="text" id="country" required>
+        </div>
+        <button type="submit" class="btn" id="next-btn"></button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    const extra = {
+      en: {
+        greet: "Welcome",
+        greetSub: "Tell us a bit about yourself",
+        first: "First Name",
+        last: "Last Name",
+        username: "Username",
+        birthdate: "Birth Date",
+        birthtime: "Birth Time (optional)",
+        gender: "Pronouns",
+        city: "City",
+        country: "Country",
+        next: "Continue"
+      },
+      th: {
+        greet: "ยินดีต้อนรับ",
+        greetSub: "บอกข้อมูลเกี่ยวกับตัวคุณสักนิด",
+        first: "ชื่อ",
+        last: "นามสกุล",
+        username: "ชื่อผู้ใช้",
+        birthdate: "วันเกิด",
+        birthtime: "เวลาเกิด (ไม่บังคับ)",
+        gender: "สรรพนาม",
+        city: "เมือง",
+        country: "ประเทศ",
+        next: "ดำเนินการต่อ"
+      }
+    };
+    Object.assign(translations.en, extra.en);
+    Object.assign(translations.th, extra.th);
+
+    document.getElementById('greet').textContent = t('greet');
+    document.getElementById('greet-sub').textContent = t('greetSub');
+    document.getElementById('first-label').textContent = t('first');
+    document.getElementById('last-label').textContent = t('last');
+    document.getElementById('username-label').textContent = t('username');
+    document.getElementById('birthdate-label').textContent = t('birthdate');
+    document.getElementById('birthtime-label').textContent = t('birthtime');
+    document.getElementById('gender-label').textContent = t('gender');
+    document.getElementById('city-label').textContent = t('city');
+    document.getElementById('country-label').textContent = t('country');
+    document.getElementById('next-btn').textContent = t('next');
+
+    document.getElementById('profile-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const profile = {
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
+        username: document.getElementById('username').value,
+        birthdate: document.getElementById('birthdate').value,
+        birthtime: document.getElementById('birthtime').value,
+        gender: document.getElementById('gender').value,
+        city: document.getElementById('city').value,
+        country: document.getElementById('country').value
+      };
+      localStorage.setItem('stillwater_profile', JSON.stringify(profile));
+      location.href = 'confirm.html';
+    });
+  </script>
+</body>
+</html>
